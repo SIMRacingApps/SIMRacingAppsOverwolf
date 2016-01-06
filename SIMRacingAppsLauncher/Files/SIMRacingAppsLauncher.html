@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            var SRAname = 'SIMRacingAppsLauncher';
+        </script>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <style>
+            body {
+                width:     100%;
+                font-size: 16px;
+            }
+            .logo {
+                float: left;
+                width: 30%;
+            }
+            .logoimg {
+                width: 150px;
+            }
+            .header {
+                background-color: blue;
+                color:            white;
+                width:            100%;
+                clear:            both;
+                font-size:        150%;
+                line-height:      70%;
+                text-align:       center;
+                padding-bottom:   10px;
+                white-space:      nowrap;
+            }
+            #sratitle {
+                color:            white;
+            }
+            #update {
+                color:            chartreuse;
+                font-size:        18px;
+            }
+            .copyright {
+                color:            white;
+                font-size:        15px;
+            }
+            .license {
+                color:            white;
+                font-size:        15px;
+            }
+            .notice {
+                color:            white;
+                font-size:        15px;
+            }
+            .releasenotes {
+                color:            white;
+                font-size:        15px;
+            }
+            .version {
+                background-color: blue;
+                color:            white;
+                width:            100%;
+                clear:            both;
+                font-size:        15px;
+                text-align:       center;
+                padding-bottom:   10px;
+                white-space:      nowrap;
+            }
+            .item {
+                width: 100%;
+                height: 60px;
+                background-color: dimgray;
+                margin-bottom: 3px;
+                margin-top: 3px;
+            }
+            .icon {
+                max-width:  100px;
+                max-height: 60px;
+                text-align: center;
+            }
+            .name {
+                text-align: center;
+            }
+            #SRAurlForm {
+                font-size: 15px;
+            }
+            #SRAconfigurationForm {
+                text-align: left;
+                font-size: 15px;
+            }
+            .settings {
+                width: 3%;
+                float: right;
+                margin-right: 5%;
+                max-width:  25px;
+                max-height: 25px;
+                width:      25px;
+                height:     25px;
+            }
+            .options_form {
+                white-space: nowrap;
+                color: white;
+            }
+            .options_label {
+                white-space: nowrap;
+            }
+            .itemtext {
+                height: 100%;
+                font-size: 100%;
+                text-align: left;
+                white-space: nowrap;
+                color: white;
+            }
+            .itemdesc {
+                height: 100%;
+                font-size: 70%;
+                text-align: left;
+                color: white;
+            }
+            .upload {
+                font-size: 25px;
+            }
+        </style>
+        <script>
+            var websiteVersion = {};
+            var serverVersion = {};
+            var numWindows = 20;     //keep this in sync with the number of AppWindows there are.
+            var windowIds = [];
+            var windows = {};
+            var windowsById = {};
+            var delay = 1000;
+            var SRAstate = {
+                SRAurl: 'http://localhost',
+                SRAconfiguration: 'default',
+                SRAconfigurations: {'default': true}
+            };
+
+            if (localStorage.getItem(SRAname)) {
+                var state = JSON.parse(localStorage.getItem(SRAname));
+                SRAstate.SRAurl            = state.SRAurl            || 'http://localhost'
+                SRAstate.SRAconfiguration  = state.SRAconfiguration  || 'default';
+                SRAstate.SRAconfigurations = state.SRAconfigurations || {'default': true};
+                localStorage.setItem(SRAname,JSON.stringify(SRAstate));
+            }
+            
+/*
+            //close any windows open with my names.
+            for (var winidx=0; winidx < numWindows; winidx++) {
+                overwolf.windows.obtainDeclaredWindow("AppWindow"+winidx, function(result) {
+                    if (result.status == "success") {
+                        overwolf.windows.minimize(result.window.id);
+                    }
+                });
+            }
+*/
+
+            function saveOptions() {
+                var needtorefresh = false;
+                var length = document.forms.length;
+                for(var i = 0; i < length; i++) {
+                    var form = document.forms[i];
+                    if(form.id == "SRAurlForm") {
+                        var value = form.SRAurl.value;
+                        if (SRAstate.SRAurl != value) {
+	                        SRAstate.SRAurl = value;
+	                        localStorage.setItem(SRAname,JSON.stringify(SRAstate));
+	                        console.log("Saved: "+JSON.stringify(SRAstate));
+	                        needtorefresh = true;
+                        }
+                    }
+                    if (form.id.substring(0,8) == "options-") {
+                        //This storage key is used by the AppWindows to save position and size
+                        //therefore, read it in before you save the options with it.
+                        var windowState = localStorage.getItem(form.id.substring(8)+'-'+SRAstate.SRAconfiguration);
+                        windowState = JSON.parse(windowState) || {};
+                        if (windowState.transparent   != form.transparent.checked
+                        ||  windowState.loadonstartup != form.loadonstartup.checked
+                        ) {
+	                        windowState.transparent   = form.transparent.checked;
+	                        windowState.loadonstartup = form.loadonstartup.checked;
+	                        localStorage.setItem(form.id.substring(8)+'-'+SRAstate.SRAconfiguration,JSON.stringify(windowState));
+	                        //needtorefresh = true;
+                        }
+                    }
+                }
+                if (needtorefresh)
+                    refreshListings();
+            };
+
+            function deleteConfiguration() {
+                var length = document.forms.length;
+                for(var i = 0; i < length; i++) {
+                    var form = document.forms[i];
+                    if(form.id == "SRAconfigurationForm") {
+                        var configuration = form.configuration.value;
+                        delete SRAstate.SRAconfigurations[configuration];
+                        SRAstate.SRAconfiguration = 'default';
+                        localStorage.setItem(SRAname,JSON.stringify(SRAstate));
+                        console.log("Saved: "+JSON.stringify(SRAstate));
+                        for (var key in localStorage) {
+                            if (key.substring(key.length-configuration.length-1) == ("-" + configuration)) {
+                                console.log("deleting settings for - "+key);
+                                delete localStorage[key];
+                            }
+                        }
+                        refreshListings();
+                    }
+                }
+            }
+            
+            function saveConfiguration() {
+                var length = document.forms.length;
+                for(var i = 0; i < length; i++) {
+                    var form = document.forms[i];
+                    if(form.id == "SRAconfigurationForm") {
+                        var configuration = form.configuration.value;
+                        SRAstate.SRAconfiguration = configuration;
+                        SRAstate.SRAconfigurations[configuration] = true;
+                        localStorage.setItem(SRAname,JSON.stringify(SRAstate));
+                        console.log("Saved: "+JSON.stringify(SRAstate));
+                        refreshListings();
+                    }
+                }
+            }
+            
+            function updateButtons() {
+                var length = document.forms.length;
+                for(var i = 0; i < length; i++) {
+                    var form = document.forms[i];
+                    if(form.id == "SRAconfigurationForm") {
+                        var configuration = form.configuration.value;
+                        if (configuration && !SRAstate.SRAconfigurations[configuration]) {
+                            //console.log("New Configuration: " + configuration);
+                            document.getElementById("save").disabled = false;
+                            document.getElementById("delete").disabled = true;
+                        }
+                        else {
+                            //console.log("Existing Configuration: " + configuration);
+                            document.getElementById("save").disabled = true;
+                            if (configuration) {
+                                if (configuration != 'default')
+	                                document.getElementById("delete").disabled = false;
+	                            else
+	                                document.getElementById("delete").disabled = true;
+                                
+                                if (SRAstate.SRAconfiguration != configuration) {
+                                    SRAstate.SRAconfiguration = configuration;
+                                    localStorage.setItem(SRAname,JSON.stringify(SRAstate));
+                                    console.log("Saved: "+JSON.stringify(SRAstate));
+                                    refreshListings();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            function sendStorageEvent(windowName) {
+                console.log("localStorage.setItem("+windowName+","+JSON.stringify(windows[windowName])+")");
+                localStorage.setItem(windowName,JSON.stringify(windows[windowName]));                                           
+            }
+            
+            function launch(name,url,width,height) {
+                var useTop    = 0;
+                var useLeft   = 0;
+                var useWidth  = (width  || 800) * 1;
+                var useHeight = (height || 480) * 1;
+                var useTransparent = false;
+                var args = ""; //TODO: get args to this process from location.search
+                
+                //if the window is already open, close it and return
+                for (var idx=0; idx < windowIds.length; idx++) {
+	                if (windowIds[idx] && windowIds[idx].name == name) {
+	                    overwolf.windows.minimize(windowIds[idx].id);
+                        windows[windowIds[idx].name] = null;
+	                    windowIds[idx] = null;
+	                    //return;
+	                }
+                }
+                
+                if (localStorage.getItem(name+'-'+SRAstate.SRAconfiguration)) {
+                    var state = JSON.parse(localStorage.getItem(name+'-'+SRAstate.SRAconfiguration));
+                    if (state) {
+                        console.log("launch("+name+'-'+SRAstate.SRAconfiguration+") localStorage = " + JSON.stringify(state));
+                        //useTop         = state.top         || useTop;
+                        //useLeft        = state.left        || useLeft;
+                        //useWidth       = state.width       || useWidth;
+                        //useHeight      = state.height      || useHeight;
+                        useTransparent = typeof state.transparent == 'undefined' ? useTransparent : state.transparent;
+                    }
+                }
+                
+                if (useTransparent) {
+                    args += "&backgroundColor=rgba(0,0,0,.01)"; //this is so transparent that you can't see it, yet it's enough to get the resize handles to work.
+                }
+                
+                //if the url doesn't have any parameters, then make our first parameter a question mark
+                if (url.indexOf('?') < 0 && args)
+                    args = "?" + args.substring(1);
+
+                //var eventWin  = window.open(url + args, "_blank", 'width=' + useWidth + ', height=' + useHeight + ', resizable=1, scrollbars=1, status=0, toolbar=0, location=0, menubar=0');
+                //eventWin.focus();
+                
+                var idx = -1;                
+                for (var winidx=0; winidx < numWindows && winidx < windowIds.length; winidx++) {
+                    //is this window not used
+                    if (!windowIds[winidx]) {
+                        idx = winidx;
+                        break;
+                    }
+                }
+                if (idx == -1 && windowIds.length < numWindows) {
+                    idx = windowIds.length;
+                }
+                
+                //if there is an available window
+                if (idx != -1) {
+                    var windowName = "AppWindow" + idx;
+                    windowIds[idx] = { name: name, windowName: windowName, idx: idx };
+                    
+                    windows[windowName] = {
+                        name: name,
+                        configuration: SRAstate.SRAconfiguration,
+                        url: url + args,
+                        top: useTop,
+                        left: useLeft,
+                        width: useWidth,
+                        height: useHeight,
+                        idx: idx,
+                        windowName: windowName
+                    };
+                    
+	                overwolf.windows.obtainDeclaredWindow(windowName, function(result) {
+	                    if (result.status == "success") {
+                            //blank it out so it will generate the event even when it has not changed.
+                            localStorage.setItem(result.window.name,"");
+	                        
+	                        windows[result.window.name].id = result.window.id;
+	                        windowsById[result.window.id] = {
+	                           name: result.window.name      
+	                        };
+	                        overwolf.windows.restore(result.window.id, function(result1) {
+	                            //overwolf.windows.changeSize(result.window.id, useWidth, useHeight, function(result2) {
+	                                //overwolf.windows.changePosition(result.window.id,useLeft,useTop,function(result3) {
+	                                    //This will send the information the child window needs to refresh itself.
+	                                    //give it time to restore
+	                                    var f = new Function('sendStorageEvent("'+windowsById[result1.window_id].name+'");');
+	                                    setTimeout(f,delay);
+	                                //});
+	                            //});
+	                        });
+	                    }
+	                });
+                }
+            };
+            
+            function refreshListings() {
+                if (localStorage.getItem(SRAname)) {
+                    SRAstate                = JSON.parse(localStorage.getItem(SRAname));
+                    
+                    document.getElementById("SRAconfiguration").value = SRAstate.SRAconfiguration;
+                    var datalist = document.getElementById("configurations");
+                    datalist.parentElement.removeChild(datalist);
+                    datalist = document.createElement("select");
+                    datalist.setAttribute("id","configurations");
+                    datalist.setAttribute("name","configurations");
+                    datalist.addEventListener('change',function(e) {
+                        var theinput = document.getElementById("SRAconfiguration");
+                        var thelist  = document.getElementById("configurations");
+                        var idx = e.target.selectedIndex;
+                        var content = thelist.options[idx].innerHTML;
+                        theinput.value = content;
+                        saveConfiguration();
+                    },false);
+                    var selectedIndex = 0;
+                    for (var configuration in SRAstate.SRAconfigurations) {
+                        var option = document.createElement("option");
+                        option.setAttribute("value",configuration);
+                        option.innerHTML = configuration;
+                        datalist.appendChild(option);
+                        if (SRAstate.SRAconfiguration == configuration)
+                            datalist.selectedIndex = selectedIndex;
+                        selectedIndex++;
+                    }
+                    document.getElementById("SRAconfigurationForm").appendChild(datalist);
+                    updateButtons();
+                }
+                
+                //close any windows open with my names.
+                for (var winidx=0; winidx < numWindows; winidx++) {
+                    overwolf.windows.obtainDeclaredWindow("AppWindow"+winidx, function(result) {
+                        if (result.status == "success") {
+                            overwolf.windows.minimize(result.window.id);
+                        }
+                    });
+                }
+                windowIds = [];
+                
+                //update the URLs on the links
+                document.getElementById("settings").href = SRAstate.SRAurl + "/SIMRacingApps/settings.html";
+                //get the listings
+                var menuItemsRequest = new XMLHttpRequest();
+                menuItemsRequest.onload = function(e) {
+                    var items = JSON.parse(menuItemsRequest.responseText);
+                    serverVersion = items.version;
+                    console.log("menuItemsRequest: " + JSON.stringify(serverVersion));
+                    document.getElementById("version").innerHTML = 'Server Version: ' 
+                                                                 + serverVersion.major 
+                                                                 + '.' + serverVersion.minor 
+                                                                 + "_" + serverVersion.build;
+                    document.getElementById("userPath").innerHTML = serverVersion.userpath;
+                    document.getElementById("copyright").href     = SRAstate.SRAurl + serverVersion.copyrightUrl;
+                    document.getElementById("license").href       = SRAstate.SRAurl + serverVersion.licenseUrl;
+                    document.getElementById("notice").href        = SRAstate.SRAurl + serverVersion.noticeUrl;
+                    document.getElementById("releasenotes").href  = SRAstate.SRAurl + serverVersion.releasenotes;
+                    overwolf.extensions.current.getManifest(function(m) {
+                        document.getElementById("overwolf_version").innerHTML = "Overwolf SIMRacingAppsLauncher Version: " + m.meta.version;    
+                    });
+                    checkForUpdate();
+/*                    
+                    <table width="100%" data-ng-repeat="header in headers">
+	                    <colgroup>
+	                        <col style="width: 200px"  />
+	                        <col style="width: 100%"  />
+	                    </colgroup>
+	                    <thead data-ng-show="listings[header].length > 0">
+	                        <tr>
+	                            <td class="header" colspan="2">{{header}}</td>
+	                        </tr>
+	                    </thead>
+	                    <tbody>
+	                        <tr class="item" data-ng-repeat="item in listings[header]">
+	                            <td class="icon"><a data-ng-click="launch(item.url,item.width,item.height)" target="_blank"><img class="icon" data-ng-src="{{item.icon}}"></a></td>
+	                            <td><a data-ng-click="launch(item.doc,1000,700)" target="_blank">
+	                                   <div class="itemtext">{{item.name}}<br /></div>
+	                                   <div class="itemdesc">{{item.description}}</div>
+	                                </a>
+	                            </td>
+	                        </tr>
+	                    </tbody>
+                    </table>
+*/
+                    delay = 1000;
+                    var listingsTable = document.getElementById("listingsTable");
+                    
+                    var listingsBody = document.getElementById("listingsBody");
+                    listingsBody.parentElement.removeChild(listingsBody);
+
+                    listingsBody = document.createElement("tbody");
+                    listingsBody.setAttribute('id','listingsBody');
+                    
+                    for (var headeridx in items.headers) {
+                        var header = items.headers[headeridx];
+                        if (items[header].length > 0) {
+                            var tr_header = document.createElement('tr');
+                            
+                            var td_header = document.createElement('td');
+                            td_header.setAttribute('class','header');
+                            td_header.setAttribute('colspan','3');
+                            td_header.innerHTML = header;
+                            tr_header.appendChild(td_header);
+                            
+                            listingsBody.appendChild(tr_header);
+                            
+                            for (var itemsidx in items[header]) {
+                                var item = items[header][itemsidx];
+
+                                var args         = item.args.split(";");
+                                var descriptions = item.description.split(";");
+                                var names        = item.name.split(";");
+                                var icons        = item.icon.split(";");
+                                for (var i=0; i < args.length;i++) {
+	                                var name = (i < names.length ? names[i] : names[0]);
+
+	                                var transparent   = false;
+	                                var loadonstartup = false;
+	                                if (localStorage.getItem(name+'-'+SRAstate.SRAconfiguration)) {
+	                                    var state = JSON.parse(localStorage.getItem(name+'-'+SRAstate.SRAconfiguration));
+	                                    if (state) {
+	                                        transparent   = state.transparent   == 'undefined' ? transparent   : state.transparent;
+	                                        loadonstartup = state.loadonstartup == 'undefined' ? loadonstartup : state.loadonstartup;
+	                                        
+	                                        if (loadonstartup) {
+	                                            launch(name,SRAstate.SRAurl+'/SIMRacingApps/'+item.url+args[i],item.width,item.height);
+	                                            delay += 200;
+	                                        }
+	                                    }
+	                                }
+	                                
+	                                var tr_item = document.createElement('tr');
+                                    listingsBody.appendChild(tr_item);
+	                                tr_item.setAttribute('class','item');
+	                                
+	                                var td_form = document.createElement('td');
+	                                tr_item.appendChild(td_form);
+	                                
+	                                var form_options = document.createElement('form');
+	                                td_form.appendChild(form_options);
+	                                form_options.setAttribute('class','options_form');
+	                                form_options.setAttribute('data-name',name);
+	                                form_options.setAttribute('id','options-' + name);
+	                                
+	                                var input_transparent = document.createElement('input');
+	                                form_options.appendChild(input_transparent);
+	                                input_transparent.setAttribute('type','checkbox');
+	                                input_transparent.setAttribute('name','transparent');
+	                                input_transparent.setAttribute('value','transparent');
+	                                input_transparent.setAttribute('id',name + '-transparent');
+	                                input_transparent.checked = transparent;
+                                    input_transparent.addEventListener('click',saveOptions);
+	                                
+	                                var label_transparent = document.createElement('label');
+	                                form_options.appendChild(label_transparent);
+	                                label_transparent.setAttribute('for',name + '-transparent');
+	                                label_transparent.setAttribute('class','options_label');
+	                                label_transparent.innerHTML = "Transparent";
+	                                
+	                                form_options.appendChild(document.createElement('br'));
+
+                                    var input_loadonstartup = document.createElement('input');
+                                    form_options.appendChild(input_loadonstartup);
+                                    input_loadonstartup.setAttribute('type','checkbox');
+                                    input_loadonstartup.setAttribute('name','loadonstartup');
+                                    input_loadonstartup.setAttribute('value','loadonstartup');
+                                    input_loadonstartup.setAttribute('id',name + '-loadonstartup');
+                                    input_loadonstartup.checked = loadonstartup;
+                                    input_loadonstartup.addEventListener('click',saveOptions);
+                                    
+                                    var label_loadonstartup = document.createElement('label');
+                                    form_options.appendChild(label_loadonstartup);
+                                    label_loadonstartup.setAttribute('for',name + '-loadonstartup');
+                                    label_loadonstartup.setAttribute('class','options_label');
+                                    label_loadonstartup.innerHTML = "LoadOnStartup";
+	                                
+	                                var td_icon = document.createElement('td');
+                                    tr_item.appendChild(td_icon);
+	                                td_icon.setAttribute('class','icon');
+	                                
+	                                var img_icon = document.createElement('img');
+                                    td_icon.appendChild(img_icon);
+	                                img_icon.setAttribute('class','icon');
+	                                img_icon.setAttribute('src',SRAstate.SRAurl + '/SIMRacingApps/' + (i < icons.length ? icons[i] : icons[0]));
+	                                if (header.toLowerCase() != "documentation") {
+	                                    var f = new Function('launch("'+name+'","'+SRAstate.SRAurl+'/SIMRacingApps/'+item.url+args[i]+'",'+item.width+','+item.height+');');
+	                                    img_icon.addEventListener('click',f);
+	                                }
+	                                
+	                                var td_text = document.createElement('td');
+                                    tr_item.appendChild(td_text);
+	                                
+	                                var a_text  = document.createElement('a');
+                                    td_text.appendChild(a_text);
+	                                a_text.setAttribute('target','_blank');
+	                                a_text.setAttribute('href',SRAstate.SRAurl + '/SIMRacingApps/' + item.doc);
+	                                
+	                                var div_text= document.createElement('div');
+                                    a_text.appendChild(div_text);
+	                                div_text.setAttribute('class','itemtext');
+	                                div_text.innerHTML = name + '<br />';
+	                                
+	                                var div_desc= document.createElement('div');
+                                    a_text.appendChild(div_desc);
+	                                div_desc.setAttribute('class','itemdesc');
+	                                div_desc.innerHTML = (i < descriptions.length ? descriptions[i] : descriptions[0]);
+	                                
+                                }
+                            }
+                        }
+                        listingsTable.appendChild(listingsBody);
+                    }
+                    delay = 1000;
+                };
+                menuItemsRequest.open("GET",SRAstate.SRAurl+"/SIMRacingApps/listings");
+                menuItemsRequest.send();
+                
+                //check for an update
+                var updateRequest = new XMLHttpRequest();
+                updateRequest.onload = function(e) {
+                    var version = JSON.parse(updateRequest.responseText);
+                    console.log("SIMRacingApps.com/version.json: " + JSON.stringify(version));
+                    websiteVersion = version;
+                    checkForUpdate();
+                }
+                updateRequest.open("GET",'http://SIMRacingApps.com/version.json');
+                updateRequest.send();
+            };
+
+            function checkForUpdate() {
+                //we can't check until both servers have responed
+                if (serverVersion.major && websiteVersion.major) {
+                    var build = "";
+                    var websiteBuild = "";
+                    var a = websiteVersion.build.split(/[-.]/);
+                    
+                    for (var i=0;i < a.length;i++) {
+                        if (a[i].match(/[0-9]/))
+                            websiteBuild += a[i];
+                    }
+                    
+                    websiteBuild *= 1;
+                    
+                    a = serverVersion.build.split(/[-.]/);
+                    
+                    for (var i=0;i < a.length;i++) {
+                        if (a[i].match(/[0-9]/))
+                            build += a[i];
+                    }
+                    
+                    build *= 1;
+                    
+                    if (serverVersion.major <  websiteVersion.major
+                    || (serverVersion.major == websiteVersion.major && serverVersion.minor <  websiteVersion.minor)
+                    || (serverVersion.major == websiteVersion.major && serverVersion.minor == websiteVersion.minor && build < websiteBuild)
+                    //|| true
+                    ) {
+                        var updateString = "(UPDATE Available: "+websiteVersion.major+"."+websiteVersion.minor+"-"+websiteVersion.build+")<br />";
+                        document.getElementById("update").innerHTML = updateString;
+                    }
+                }
+            };
+            
+            window.onload = function() {
+                document.getElementById("SRAurl").setAttribute("value",SRAstate.SRAurl);
+                overwolf.windows.onStateChanged.addListener( function(e) {
+                    console.log("onStateChanged() = " + JSON.stringify(e));
+                });
+                overwolf.windows.onMainWindowRestored.addListener( function(e) {
+                    console.log("onMainWindowRestored() = " + JSON.stringify(e));
+                });
+                refreshListings();
+            };
+            
+        </script>
+    </head>
+
+    <body id="body" style="width: 100%">
+        <table>
+        <thead>
+        	<tr id="header_row"><td width='100%'>
+        		<div class="header">
+        		    <table width='100%'><tr>
+        		    <td>
+                        <img onclick="javascript:window.location.reload();" class="logoimg" src="../IconMouseOver.png" /><br />
+        		    </td>
+        		    <td class="header">
+        	            <a id="sratitle" target="_blank" href="http://SIMRacingApps.com">SIMRacingApps.com</a><br />
+        	            <span id="overwolf_version" class="version"></span><br />
+        				<span id="version" class="version"></span><br />
+                        <a id='update' target='_blank' href='http://github.com/SIMRacingApps/SIMRacingApps/releases/latest'"></a>
+        				<a id="copyright" class="copyright" target="_blank">Copyright</a><br />
+        				<a id="license" class="license" target="_blank">License</a><br />
+        				<a id="notice" class="notice" target="_blank">NOTICE</a><br />
+        			    <a id="releasenotes" class="releasenotes" target="_blank">Release Notes</a>
+                        <form id="SRAurlForm" class="SRAurlForm">
+                            Server URL: 
+                            <input id="SRAurl" oninput="javascript:saveOptions();" type="text" name="SRAurl" id="SRAurl" value="http://localhost" />
+                        </form>
+        		    </td>
+        		    </tr>
+        		    <tr>
+        		    <td>
+        		        <form id="SRAconfigurationForm" class="SRAconfigurationForm">
+        		             Configuration:<br />
+        		             <input oninput="javascript:updateButtons();" type="text" id="SRAconfiguration" name="configuration" value="default">
+        		             <input onclick="javascript:saveConfiguration();" type="button" disabled="true" value="Create" name="save" id="save" />
+                             <input onclick="javascript:deleteConfiguration();" type="button" disabled="true" value="Delete" name="delete" id="delete" />
+                             <br />
+        		             <select id="configurations" name="configurations">
+        		                  <option value="default">
+        		             </select>
+        		        </form>
+        		    </td>
+        		    <td>
+        		        <a id="settings" target="_blank"><img class="settings" src="settings-icon.png" alt="Settings"></a>
+        		    </td></tr>
+        		    </table>
+        		</div>    
+            </td></tr>
+        </thead>
+        <tbody>
+            <table id="listingsTable" width="100%">
+                <colgroup>
+                    <col style="width: 200px" />
+                    <col style="width: 200px" />
+                    <col style="width: 100%"  />
+                </colgroup>
+                <tbody id="listingsBody">
+                <tr><td>Loading... If menu doesn't load, verify the SIMRacingAppsServer is running. Then click the Logo to refresh the page.</td></tr>
+                </tbody>
+            </table>
+        </tbody>
+        <tfoot>
+            <tr id="upload_row"><td>
+                <form id="upload" class="upload" method="POST" enctype="multipart/form-data">
+                    To install or update an App, Widget or Patch,<br />
+                    choose a File to upload, then click "Upload."<br />
+                    Files will be uploaded into your user directory (<span id="userPath"></span>), <br />
+                    which is searched first by the server.<br />
+                    <input type="file" name="file" id="file" accept=".sra"/>
+                    <input type="submit" value="Upload" name="upload" id="upload" />
+                </form>
+            </td></tr>
+        </tfoot>
+        </table>
+    </body>
+</html>

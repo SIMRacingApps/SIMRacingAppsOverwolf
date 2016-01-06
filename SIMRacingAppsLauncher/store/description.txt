@@ -1,0 +1,39 @@
+<h3>SIMRacingAppsLauncher - A FREE, Community Supported, Companion to Your Racing Games</h3>
+<hr />
+<h2>What is SIMRacingApps?</h2>
+<ul>
+<li>It's a Web Server used to host browser based Apps that are accessible using any device with a modern HTML5 browser.</li>
+<li>It comes with several Apps free out of the box.</li>
+<li>It's a ReST interface for developers to access the SIM Data via an HTTP call.</li>
+<li>It's a HTML5 platform for other developers to write Apps and Widgets and share them with you.</li>
+<li>It's a Java SDK for developing your own Java Based Apps.</li>
+<li>And it is free, no hidden fees, not a demo, full 100% functionality available, open source, released under the <a target="_blank" href="LICENSE.TXT">Apache License 2.0</a>.</li>
+<li>Like us on FaceBook 
+    <a target="_blank" href="http://www.facebook.com/SIMRacingApps">SIMRacingApps</a> 
+    to keep up with new releases and tips and tricks.
+    </li>
+</ul>
+<h2>Want to try it out? It's simple.</h2>
+<h3>On the same computer where the simulator is running:</h3>
+<ul>
+<li>Download the latest version of SIMRacingAppsServer....exe from 
+    <a href='http://simracingapps.com'>SIMRacingApps.com</a> 
+    and save it where you can find it later. 
+    It is not an installer.</li>
+<li>Execute SIMRacingAppsServer....exe. </li>
+<li>If you don't have Java 1.8 or better installed, 
+    it will direct you to the download page so you can install Java.
+    After Java is installed, execute the SIMRacingAppsServer....exe again. 
+</li>
+<li>Leave this window open while racing. 
+    You can minimize it, but note the HTTP://... address in the title of this window first. 
+    You will use this address to connect to the server from the client.</li>
+</ul>
+<h3>Clients can connect from any device connected to your home network<br />(including the SIM computer):</h3>
+<ul>
+<li>Open a browser (Chrome, FireFox, IE10, EDGE, Safari) and enter the HTTP address of the server.</li>
+<li>Click on one or more Apps or Widgets and start racing. Clicking the description will open the documentation for that App or Widget.</li>
+<li>For detailed documentation, see the link above. 
+    For a specific version, start that version's server and access the documentation from the main menu.
+</li>
+</ul>

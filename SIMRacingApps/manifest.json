@@ -1,0 +1,35 @@
+{
+    "manifest_version":1,
+    "type":"WebApp",
+    "meta":{
+        "name":"SIMRacingApps",
+        "version":"1.0.0",
+        "minimum-overwolf-version":"0.90.22",
+        "author":"Jeffrey Gilliam",
+        "icon":"SRA-Logo-256x256.png",
+        "icon_gray":"SRA-Logo-256x256.png",
+        "description":"SIMRacingApps - Main Menu"
+    },
+    "permissions": ["GameInfo"],
+    "data": {
+        "start_window":"SIMRacingApps",
+        "launch_events": [
+            {
+                "event": "GameLaunch",
+                "event_data": {
+                    "game_ids": [6578]
+                },
+                "start_minimized": false
+            }
+        ],
+        "windows":{
+            "SIMRacingApps":{
+                    "file":"SIMRacingApps.html",
+                    "transparent":false,
+                    "resizable":true,
+                    "topmost":false,
+                    "size":{"width":1, "height":1}
+                }
+        }
+    }
+}

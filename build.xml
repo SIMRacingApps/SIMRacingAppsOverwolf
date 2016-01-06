@@ -1,0 +1,36 @@
+<project basedir="." default="opk" name="SIMRacingAppsOverwolf">
+    <tstamp>
+        <format property="build.time" pattern="yyyy.MM.dd.HH.mm.ss" />
+    </tstamp>
+    <tstamp>
+        <format property="build.date" pattern="yyyy.MM.dd" />
+    </tstamp>
+    <tstamp>
+        <format property="build.year" pattern="yyyy" />
+    </tstamp>
+    <property name="deployment.dir" value="${user.home}/Documents/SIMRacingApps" />
+    <loadresource property="overwolf.manifest.json">
+        <concat>
+            <fileset dir="SIMRacingAppsLauncher" includes="manifest.json" />
+        </concat>
+    </loadresource>
+    <property name="overwolf_version.json" value="${overwolf.manifest.json}" />
+    <!-- echo message="${overwolf.manifest.json}" / -->
+    <script language="javascript">
+        var manifest = JSON.parse(project.getProperty("overwolf_version.json"));
+        property = project.createTask("property");
+        property.setName("overwolf_version");
+        property.setValue(manifest.meta.version);
+        property.perform();
+    </script>
+    <echo message="Overwolf-SIMRacingAppsLauncher Version: ${overwolf_version}" />
+    <target name="opk">
+        <zip destfile="${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" basedir="SIMRacingAppsLauncher" />
+        <echo message="Created ${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" />
+    </target>
+    <target name="deploy" depends="opk">
+        <copy overwrite="true" file="${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" todir="${deployment.dir}" />
+        <copy overwrite="true" file="_overwolf-apps-readme.txt" tofile="${deployment.dir}/Overwolf-SIMRacingAppsLauncher-readme.txt" />
+        <echo message="Deployed Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk to ${deployment.dir}" />
+    </target>
+</project>
