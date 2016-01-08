@@ -1,4 +1,4 @@
-<project basedir="." default="opk" name="SIMRacingAppsOverwolf">
+<project basedir="." default="opk" name="SIMRacingApps-Overwolf">
     <tstamp>
         <format property="build.time" pattern="yyyy.MM.dd.HH.mm.ss" />
     </tstamp>
@@ -8,7 +8,11 @@
     <tstamp>
         <format property="build.year" pattern="yyyy" />
     </tstamp>
+
     <property name="deployment.dir" value="${user.home}/Documents/SIMRacingApps" />
+    <property name="download.dir" value="X:/SIMRacingApps" />
+    <property name="SIMRacingApps.github.io.location" value="../SIMRacingApps.github.io" />
+
     <loadresource property="overwolf.manifest.json">
         <concat>
             <fileset dir="SIMRacingAppsLauncher" includes="manifest.json" />
@@ -33,4 +37,12 @@
         <copy overwrite="true" file="_overwolf-apps-readme.txt" tofile="${deployment.dir}/Overwolf-SIMRacingAppsLauncher-readme.txt" />
         <echo message="Deployed Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk to ${deployment.dir}" />
     </target>
+    <available file="${download.dir}/Overwolf-SIMRacingAppsLauncher_${overwolf_version}.sra" property="overwolf.exists" />
+    <target name="release" depends="opk" unless="overwolf.exists">
+        <copy overwrite="true" file="SIMRacingAppsLauncher/manifest.json" tofile="${SIMRacingApps.github.io.location}/overwolf_package.json" />
+        <copy overwrite="true" file="_overwolf-apps-readme.txt" tofile="${download.dir}/Overwolf-SIMRacingAppsLauncher-readme.txt" />
+        <copy overwrite="false" file="${java.io.tmpdir}/Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" todir="${download.dir}" />
+        <echo message="Remember to move older versions to the archive folder" />
+    </target>
+    
 </project>
