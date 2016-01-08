@@ -15,7 +15,7 @@ Overwolf must be downloaded and installed from http://www.overwolf.com.
 
 For now, you have to install the SIMRacingAppsLauncher package manually.
 Once it is stable, I will submit it to the Overwolf Store so you can download it from there.
-But for now, download the package file, SIMRacingAppsLauncher-x.x.x.opk, from the downloads link.
+But for now, download the package file, [SIMRacingAppsLauncher-x.x.x.opk](https://github.com/SIMRacingApps/SIMRacingAppsOverwolf/releases/latest).
 
 Launch Overwolf to change some settings. Also Overwolf must be running before you run the SIM.
 
@@ -48,6 +48,7 @@ Click the big icon in the middle and you should see the SIMRacingAppsLauncher ic
 You will need to leave SIMRacingAppsLauncher open, but you can minimize it and restore it from the dock.    
 
 =============================================================================================================
+
 Some notes from testing on different setups.
 Send me feedback and I'll document your experience here as well.
  
