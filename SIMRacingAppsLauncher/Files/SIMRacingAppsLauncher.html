@@ -5,6 +5,14 @@
             var SRAname = 'SIMRacingAppsLauncher';
         </script>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <script>
+          var ga = new XMLHttpRequest();
+          ga.onload = function(e) {
+              var s=e;
+          }
+          ga.open("POST",'https://www.google-analytics.com/collect?v=1&t=pageview&tid=UA-72478308-1&cid=705bc20c-6d42-4479-a1f8-a1654f145b6f&dh=localhost&dp=%2Foverwolf%2Fmenu&dt=SIMRacingApps');
+          ga.send();
+        </script>
         <style>
             body {
                 width:     100%;
@@ -149,6 +157,25 @@
             }
 */
 
+            function hideWindows() {
+                //if the window is already open, close it and return
+                for (var idx=0; idx < windowIds.length; idx++) {
+	                if (windowIds[idx]) {
+	                    overwolf.windows.minimize(windows[windowIds[idx].windowName].id);
+	                }
+                }
+            }
+
+            function showWindows() {
+                //if the window is already open, close it and return
+                for (var idx=0; idx < windowIds.length; idx++) {
+	                if (windowIds[idx]) {
+	                    overwolf.windows.restore(windows[windowIds[idx].windowName].id);
+	                }
+                }
+            }
+
+            
             function saveOptions() {
                 var needtorefresh = false;
                 var length = document.forms.length;
@@ -262,13 +289,12 @@
                 var useTransparent = false;
                 var args = ""; //TODO: get args to this process from location.search
                 
-                //if the window is already open, close it and return
+                //if the window is already open, close it
                 for (var idx=0; idx < windowIds.length; idx++) {
 	                if (windowIds[idx] && windowIds[idx].name == name) {
 	                    overwolf.windows.minimize(windowIds[idx].id);
                         windows[windowIds[idx].name] = null;
 	                    windowIds[idx] = null;
-	                    //return;
 	                }
                 }
                 
@@ -658,6 +684,8 @@
         		             <input oninput="javascript:updateButtons();" type="text" id="SRAconfiguration" name="configuration" value="default">
         		             <input onclick="javascript:saveConfiguration();" type="button" disabled="true" value="Create" name="save" id="save" />
                              <input onclick="javascript:deleteConfiguration();" type="button" disabled="true" value="Delete" name="delete" id="delete" />
+                             <input onclick="javascript:hideWindows();" type="button" value="Hide All" name="hide" id="hide" />
+                             <input onclick="javascript:showWindows();" type="button" value="Show All" name="show" id="show" />
                              <br />
         		             <select id="configurations" name="configurations">
         		                  <option value="default">
