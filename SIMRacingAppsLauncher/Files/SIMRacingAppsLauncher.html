@@ -5,14 +5,6 @@
             var SRAname = 'SIMRacingAppsLauncher';
         </script>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <script>
-          var ga = new XMLHttpRequest();
-          ga.onload = function(e) {
-              var s=e;
-          }
-          ga.open("POST",'https://www.google-analytics.com/collect?v=1&t=pageview&tid=UA-72478308-1&cid=705bc20c-6d42-4479-a1f8-a1654f145b6f&dh=localhost&dp=%2Foverwolf%2Fmenu&dt=SIMRacingApps');
-          ga.send();
-        </script>
         <style>
             body {
                 width:     100%;
@@ -600,6 +592,12 @@
                     console.log("SIMRacingApps.com/version.json: " + JSON.stringify(version));
                     websiteVersion = version;
                     checkForUpdate();
+                    var ga = new XMLHttpRequest();
+                    ga.onload = function(e) {
+                        var s=e;
+                    }
+                    ga.open("POST",'https://www.google-analytics.com/collect?v=1&t=pageview&tid=UA-72478308-1&cid=705bc20c-6d42-4479-a1f8-a1654f145b6f&dh=localhost&dp=%2Foverwolf%2Fmenu%2F'+encodeURI(version.major+'.'+version.minor+'_'+version.build)+'&dt=SIMRacingApps');
+                    ga.send();
                 }
                 updateRequest.open("GET",'http://SIMRacingApps.com/version.json');
                 updateRequest.send();
