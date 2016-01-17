@@ -27,7 +27,7 @@
         property.setValue(manifest.meta.version);
         property.perform();
     </script>
-    <echo message="Overwolf-SIMRacingAppsLauncher Version: ${overwolf_version}" />
+    <echo message="Overwolf-SIMRacingAppsLauncher Version_${overwolf_version}" />
     <target name="opk">
         <zip destfile="${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" basedir="SIMRacingAppsLauncher" />
         <echo message="Created ${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" />
@@ -43,6 +43,7 @@
         <copy overwrite="true" file="README.md" tofile="${download.dir}/Overwolf-SIMRacingAppsLauncher-readme.txt" />
         <copy overwrite="false" file="${java.io.tmpdir}/Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" todir="${download.dir}" />
         <echo message="Remember to move older versions to the archive folder" />
+        <echo message="Remember to tag with Version_${overwolf_version} and push upstream" />
     </target>
     
 </project>
