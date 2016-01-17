@@ -82,9 +82,10 @@
             #SRAconfigurationForm {
                 text-align: left;
                 font-size: 15px;
+                float: left;
             }
             .settings {
-                width: 3%;
+                width: 10%;
                 float: right;
                 margin-right: 5%;
                 max-width:  25px;
@@ -711,7 +712,7 @@
         		    </td>
         		    </tr>
         		    <tr>
-        		    <td>
+        		    <td colspan="2">
         		        <form id="SRAconfigurationForm" class="SRAconfigurationForm">
         		             Configuration:<br />
         		             <input oninput="javascript:updateButtons();" type="text" id="SRAconfiguration" name="configuration" value="default">
@@ -724,10 +725,9 @@
         		                  <option value="default">
         		             </select>
         		        </form>
+                        <a id="settings" target="_blank"><img class="settings" src="settings-icon.png" alt="Settings"></a>
         		    </td>
-        		    <td>
-        		        <a id="settings" target="_blank"><img class="settings" src="settings-icon.png" alt="Settings"></a>
-        		    </td></tr>
+        		    </tr>
         		    </table>
         		</div>    
             </td></tr>
