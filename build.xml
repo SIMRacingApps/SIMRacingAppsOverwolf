@@ -39,7 +39,7 @@
     </target>
     <available file="${download.dir}/Overwolf-SIMRacingAppsLauncher_${overwolf_version}.sra" property="overwolf.exists" />
     <target name="release" depends="opk" unless="overwolf.exists">
-        <copy overwrite="true" file="SIMRacingAppsLauncher/manifest.json" tofile="${SIMRacingApps.github.io.location}/overwolf_package.json" />
+        <copy overwrite="true" file="SIMRacingAppsLauncher/manifest.json" tofile="${SIMRacingApps.github.io.location}/overwolf_manifest.json" />
         <copy overwrite="true" file="README.md" tofile="${download.dir}/Overwolf-SIMRacingAppsLauncher-readme.txt" />
         <copy overwrite="false" file="${java.io.tmpdir}/Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" todir="${download.dir}" />
         <echo message="Remember to move older versions to the archive folder" />
