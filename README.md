@@ -2,6 +2,8 @@ Overwolf is an application that lets you run SIMRacingApps(SRA), and other Apps 
 Overwolf is still in BETA, so your experience may vary. See below for some notes on testing with various systems.
 It uses the SIMRacingAppsServer, so it must be running as well.
 
+Looking for the newest version, click [here](https://github.com/SIMRacingApps/SIMRacingAppsOverwolf/releases/latest).
+
 The main feature Overwolf has over [Electron-Apps](https://github.com/SIMRacingApps/SIMRacingAppsElectron), 
 is the ability to run SIMRacingApps while the SIM in full screen mode.
 It also supports transparent backgrounds, so round Apps look better.
