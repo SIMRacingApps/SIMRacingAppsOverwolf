@@ -428,7 +428,7 @@
                                                                  + serverVersion.major 
                                                                  + '.' + serverVersion.minor 
                                                                  + "_" + serverVersion.build;
-                    document.getElementById("userPath").innerHTML = serverVersion.userpath;
+                    //document.getElementById("userPath").innerHTML = serverVersion.userpath;
                     document.getElementById("copyright").href     = SRAstate.SRAurl + serverVersion.copyrightUrl;
                     document.getElementById("license").href       = SRAstate.SRAurl + serverVersion.licenseUrl;
                     document.getElementById("notice").href        = SRAstate.SRAurl + serverVersion.noticeUrl;
@@ -744,7 +744,7 @@
                 </tbody>
             </table>
         </tbody>
-        <tfoot>
+        <!-- tfoot>
             <tr id="upload_row"><td>
                 <form id="upload" class="upload" method="POST" enctype="multipart/form-data">
                     To install or update an App, Widget or Patch,<br />
@@ -755,7 +755,7 @@
                     <input type="submit" value="Upload" name="upload" id="upload" />
                 </form>
             </td></tr>
-        </tfoot>
+        </tfoot -->
         </table>
     </body>
 </html>
