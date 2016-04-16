@@ -29,11 +29,11 @@
     </script>
     <echo message="Overwolf-SIMRacingAppsLauncher Version_${overwolf_version}" />
     <target name="opk">
-        <zip destfile="${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" basedir="SIMRacingAppsLauncher" />
+        <zip destfile="${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher.opk" basedir="SIMRacingAppsLauncher" />
         <echo message="Created ${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" />
     </target>
     <target name="deploy" depends="opk">
-        <copy overwrite="true" file="${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" todir="${deployment.dir}" />
+        <copy overwrite="true" file="${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher.opk" tofile="${deployment.dir}/Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" />
         <copy overwrite="true" file="README.md" tofile="${deployment.dir}/Overwolf-SIMRacingAppsLauncher-readme.txt" />
         <echo message="Deployed Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk to ${deployment.dir}" />
     </target>
@@ -41,7 +41,7 @@
     <target name="release" depends="opk" unless="overwolf.exists">
         <copy overwrite="true" file="SIMRacingAppsLauncher/manifest.json" tofile="${SIMRacingApps.github.io.location}/overwolf_manifest.json" />
         <copy overwrite="true" file="README.md" tofile="${download.dir}/Overwolf-SIMRacingAppsLauncher-readme.txt" />
-        <copy overwrite="false" file="${java.io.tmpdir}/Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" todir="${download.dir}" />
+        <copy overwrite="false" file="${java.io.tmpdir}/Overwolf-SIMRacingAppsLauncher.opk" tofile="${download.dir}/Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" />
         <echo message="Remember to move older versions to the archive folder" />
         <echo message="Remember to tag with Version_${overwolf_version} and push upstream" />
     </target>
