@@ -57,8 +57,16 @@ window.addEventListener('resize',function(e) {
     //    SRAstate.top         = result.window.top;
         SRAstate.width       = e.target.innerWidth  || SRAstate.width;
         SRAstate.height      = e.target.innerHeight || SRAstate.height;
-        localStorage.setItem(SRAstate.name+'-'+SRAstate.configuration,JSON.stringify(SRAstate));
-        console.log('onResize() = ' + JSON.stringify(SRAstate));
+//        localStorage.setItem(SRAstate.name+'-'+SRAstate.configuration,JSON.stringify(SRAstate));
+//        console.log('onResize(size) = ' + JSON.stringify(SRAstate));
+        
+        //if resizing changes the top/left, then recaputure it here.
+        overwolf.windows.getCurrentWindow( function(result2) {
+            SRAstate.left        = result2.window.left;
+            SRAstate.top         = result2.window.top;
+            localStorage.setItem(SRAstate.name+'-'+SRAstate.configuration,JSON.stringify(SRAstate));
+            console.log('onResize() = ' + JSON.stringify(SRAstate));
+        });
     }
 });
 

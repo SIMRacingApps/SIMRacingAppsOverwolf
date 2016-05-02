@@ -30,7 +30,7 @@
     <echo message="Overwolf-SIMRacingAppsLauncher Version_${overwolf_version}" />
     <target name="opk">
         <zip destfile="${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher.opk" basedir="SIMRacingAppsLauncher" />
-        <echo message="Created ${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" />
+        <echo message="Created ${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher.opk" />
     </target>
     <target name="deploy" depends="opk">
         <copy overwrite="true" file="${java.io.tmpdir}Overwolf-SIMRacingAppsLauncher.opk" tofile="${deployment.dir}/Overwolf-SIMRacingAppsLauncher_${overwolf_version}.opk" />
