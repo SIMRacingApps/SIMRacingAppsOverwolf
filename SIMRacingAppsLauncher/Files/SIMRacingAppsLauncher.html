@@ -435,6 +435,7 @@
                     document.getElementById("notice").href        = SRAstate.SRAurl + serverVersion.noticeUrl;
                     document.getElementById("releasenotes").href  = SRAstate.SRAurl + serverVersion.releasenotes;
                     overwolf.extensions.current.getManifest(function(m) {
+                        console.log("Overwolf SIMRacingAppsLauncher Version: " + m.meta.version);
                         document.getElementById("overwolf_version").innerHTML = "Overwolf SIMRacingAppsLauncher Version: " + m.meta.version;    
                         var ga = new XMLHttpRequest();
                         ga.onload = function(e) {
@@ -647,7 +648,7 @@
                     websiteBETAVersion = BETAversion;
                     checkForUpdate();
                 }
-                updateBETARequest.open("GET",'http://SIMRacingApps.com/BETAversion.json');
+                updateBETARequest.open("GET",'http://SIMRacingApps.com/BETA-version.json');
                 updateBETARequest.send();
             };
 

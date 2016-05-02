@@ -14,6 +14,7 @@ addEventListener('storage', function(e) {
             if (e.newValue) {
                 var windowState = JSON.parse(e.newValue);
                 if (windowState) {
+                    restored = false; //disable events until we get the window restore to the right position and size
                     SRAstate = windowState;
                     console.log("Received storage event("+SRAstate.name+"): "+JSON.stringify(SRAstate));
                     if (localStorage.getItem(SRAstate.name+'-'+SRAstate.configuration)) {
@@ -25,13 +26,41 @@ addEventListener('storage', function(e) {
                         SRAstate.width  = state.width  || SRAstate.width  || 800;
                         SRAstate.height = state.height || SRAstate.height || 480;
                     }
-                    overwolf.windows.getCurrentWindow( function(result) {
+                    //overwolf.windows.getCurrentWindow( function(result) {
+                    overwolf.windows.obtainDeclaredWindow( e.key, function(result) {
                         if (result.status == "success") {
                             overwolf.windows.restore(result.window.id, function(result1) {
                                 overwolf.windows.changeSize(result.window.id,SRAstate.width,SRAstate.height, function(result2) {
                                     if (result2.status == "success") {
-                                        overwolf.windows.changePosition(result.window.id,SRAstate.left,SRAstate.top);
-                                        restored = true;
+                                        overwolf.windows.changePosition(result.window.id,SRAstate.left,SRAstate.top,function(result3) {
+                                            if (result3.status == "success") {
+                                                console.log("localStorage, resize("+JSON.stringify(result2)+"), position("+JSON.stringify(result3)+")");
+                                                restored = true;
+                                                //now ask for the window state and log it
+                                                overwolf.windows.obtainDeclaredWindow( e.key, function(result4) {
+                                                    if (result4.status == "success") {
+                                                        console.log("localStorage, actual("+JSON.stringify(result4)+")");
+                                                        if (result4.window.left != SRAstate.left || result.window.top != SRAstate.top) {
+                                                            console.log("localStoreage, actual location("+result4.window.left+","+result4.window.top+") != expected location("+SRAstate.left+","+SRAstate.top+")");
+                                                            
+                                                            //let's try and trick it
+                                                            var left = SRAstate.left + (SRAstate.left - result4.window.left);
+                                                            var top  = SRAstate.top  + (SRAstate.top  - result4.window.top);
+                                                            console.log("localStorage, adjustment move using ("+left+","+top+")");
+                                                            overwolf.windows.changePosition(result.window.id,left,top,function(result5) {
+                                                                if (result5.status == "success") {
+                                                                    overwolf.windows.obtainDeclaredWindow( e.key, function(result6) {
+                                                                        if (result6.status == "success") {
+                                                                            console.log("localStorage, actual after 2nd try("+JSON.stringify(result6)+")");
+                                                                        }
+                                                                    });
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        });
                                     }
                                 });
                             });
@@ -47,6 +76,7 @@ addEventListener('storage', function(e) {
 }, false);
 
 window.addEventListener('resize',function(e) {
+    console.log("onResize() = " + JSON.stringify(e));
     if (restored) {
         var name = SRAstate.name;
         var configuration = SRAstate.configuration;
@@ -60,7 +90,7 @@ window.addEventListener('resize',function(e) {
 //        localStorage.setItem(SRAstate.name+'-'+SRAstate.configuration,JSON.stringify(SRAstate));
 //        console.log('onResize(size) = ' + JSON.stringify(SRAstate));
         
-        //if resizing changes the top/left, then recaputure it here.
+        //if resizing changes the top/left, then capture it here.
         overwolf.windows.getCurrentWindow( function(result2) {
             SRAstate.left        = result2.window.left;
             SRAstate.top         = result2.window.top;
@@ -68,6 +98,10 @@ window.addEventListener('resize',function(e) {
             console.log('onResize() = ' + JSON.stringify(SRAstate));
         });
     }
+});
+
+window.addEventListener('move',function(e) {
+    console.log("onMove() = " + JSON.stringify(e));
 });
 
 function dragMove() {
@@ -147,11 +181,11 @@ window.onload = function() {
             console.log("onStateChanged("+window_name+") = " + JSON.stringify(e));
             if (e.window_state == "normal") {
                 restored = true;
-                console.log("onStateChanged("+e.windowState+"): restored = true");
+                console.log("onStateChanged("+e.window_state+"): restored = true");
             }
             else {
                 restored = false;
-                console.log("onStateChanged("+e.windowState+"): restored = false");
+                console.log("onStateChanged("+e.window_state+"): restored = false");
             }
         }
     });
