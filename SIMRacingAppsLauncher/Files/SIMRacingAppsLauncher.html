@@ -725,6 +725,20 @@
                 overwolf.windows.onMainWindowRestored.addListener( function(e) {
                     console.log("onMainWindowRestored() = " + JSON.stringify(e));
                 });
+                overwolf.games.onGameInfoUpdated.addListener( function(e) {
+                    console.log("onGameInfoUpdated() = " + JSON.stringify(e));
+                    if (e.gameInfo.title == 'iRacing' && e.gameInfo.isInFocus && e.focusChanged) {
+                        for (var winidx=0; winidx < numWindows && winidx < windowIds.length; winidx++) {
+                            //is this window used, refresh it
+                            if (windowIds[winidx]) {
+                                console.log("refreshing window location = "+JSON.stringify(windowIds[winidx]));
+                                localStorage.setItem(windowIds[winidx].windowName,"");
+                                var f = new Function('sendStorageEvent("'+windowIds[winidx].windowName+'");');
+                                setTimeout(f,delay);
+                            }
+                        }
+                    }
+                });
                 refreshListings();
             };
             

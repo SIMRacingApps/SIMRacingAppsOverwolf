@@ -21,10 +21,10 @@ addEventListener('storage', function(e) {
                         //restore the window state
                         var state = JSON.parse(localStorage.getItem(SRAstate.name+'-'+SRAstate.configuration));
                         console.log("localStorage("+SRAstate.name+'-'+SRAstate.configuration+"): "+JSON.stringify(state));
-                        SRAstate.left   = state.left   || SRAstate.left   || 0;
-                        SRAstate.top    = state.top    || SRAstate.top    || 0;
-                        SRAstate.width  = state.width  || SRAstate.width  || 800;
-                        SRAstate.height = state.height || SRAstate.height || 480;
+                        SRAstate.left   = (state.left   || SRAstate.left   || 0) * 1;
+                        SRAstate.top    = (state.top    || SRAstate.top    || 0) * 1;
+                        SRAstate.width  = (state.width  || SRAstate.width  || 800) * 1;
+                        SRAstate.height = (state.height || SRAstate.height || 480) * 1;
                     }
                     //overwolf.windows.getCurrentWindow( function(result) {
                     overwolf.windows.obtainDeclaredWindow( e.key, function(result) {
@@ -40,8 +40,8 @@ addEventListener('storage', function(e) {
                                                 overwolf.windows.obtainDeclaredWindow( e.key, function(result4) {
                                                     if (result4.status == "success") {
                                                         console.log("localStorage, actual("+JSON.stringify(result4)+")");
-                                                        if (result4.window.left != SRAstate.left || result.window.top != SRAstate.top) {
-                                                            console.log("localStoreage, actual location("+result4.window.left+","+result4.window.top+") != expected location("+SRAstate.left+","+SRAstate.top+")");
+                                                        if ((result4.window.left * 1) != SRAstate.left || (result.window.top * 1) != SRAstate.top) {
+                                                            console.log("localStorage, actual location("+result4.window.left+","+result4.window.top+") != expected location("+SRAstate.left+","+SRAstate.top+")");
                                                             
                                                             //let's try and trick it
                                                             var left = SRAstate.left + (SRAstate.left - result4.window.left);
