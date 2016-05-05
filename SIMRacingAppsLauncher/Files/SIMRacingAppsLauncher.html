@@ -283,15 +283,16 @@
                 var useTransparent = false;
                 var args = ""; //TODO: get args to this process from location.search
                 
+/**
                 //if the window is already open, close it
                 for (var idx=0; idx < windowIds.length; idx++) {
 	                if (windowIds[idx] && windowIds[idx].name == name) {
-	                    overwolf.windows.minimize(windowIds[idx].id);
+	                    overwolf.windows.close(windowIds[idx].id);
                         windows[windowIds[idx].name] = null;
 	                    windowIds[idx] = null;
 	                }
                 }
-                
+/**/
                 if (localStorage.getItem(name+'-'+SRAstate.SRAconfiguration)) {
                     var state = JSON.parse(localStorage.getItem(name+'-'+SRAstate.SRAconfiguration));
                     if (state) {
@@ -317,14 +318,26 @@
                 
                 var idx = -1;                
                 for (var winidx=0; winidx < numWindows && winidx < windowIds.length; winidx++) {
-                    //is this window not used
-                    if (!windowIds[winidx]) {
+                    if (windowIds[winidx] && windowIds[winidx].name == name) {
                         idx = winidx;
                         break;
                     }
                 }
+                if (idx == -1) {
+                    for (var winidx=0; winidx < numWindows && winidx < windowIds.length; winidx++) {
+	                    //is this window not used
+	                    if (!windowIds[winidx]) {
+	                        idx = winidx;
+	                        break;
+	                    }
+                    }
+                }
                 if (idx == -1 && windowIds.length < numWindows) {
                     idx = windowIds.length;
+                }
+                else {
+                    if (idx == -1)
+                        alert("Max Windows("+numWindows+") Are Used");
                 }
                 
                 //if there is an available window
@@ -344,8 +357,12 @@
                         windowName: windowName
                     };
                     
+                    console.log("launch() = "+JSON.stringify(windows[windowName]));
+                    
 	                overwolf.windows.obtainDeclaredWindow(windowName, function(result) {
 	                    if (result.status == "success") {
+	                        console.log("launch() window obtained = "+JSON.stringify(result));
+	                        
                             //blank it out so it will generate the event even when it has not changed.
                             localStorage.setItem(result.window.name,"");
 	                        
@@ -353,16 +370,19 @@
 	                        windowsById[result.window.id] = {
 	                           name: result.window.name      
 	                        };
-	                        overwolf.windows.restore(result.window.id, function(result1) {
-	                            //overwolf.windows.changeSize(result.window.id, useWidth, useHeight, function(result2) {
-	                                //overwolf.windows.changePosition(result.window.id,useLeft,useTop,function(result3) {
+	                        
+//                            overwolf.windows.unhide(result.window.id, function(result1) {
+//                                console.log("launch() unhide("+result.window.id+") = "+JSON.stringify(result1));
+                                overwolf.windows.restore(result.window.id, function(result2) {
+	                                console.log("launch() restore("+result.window.id+") = "+JSON.stringify(result2));
+		                            if (result2.status == "success") {
 	                                    //This will send the information the child window needs to refresh itself.
 	                                    //give it time to restore
-	                                    var f = new Function('sendStorageEvent("'+windowsById[result1.window_id].name+'");');
+	                                    var f = new Function('sendStorageEvent("'+windowsById[result.window.id].name+'");');
 	                                    setTimeout(f,delay);
-	                                //});
-	                            //});
-	                        });
+		                            }
+                                });
+//	                        });
 	                    }
 	                });
                 }
@@ -374,6 +394,26 @@
             var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
             
             function refreshListings() {
+/**
+                _closeWindows(0);
+            }
+            
+            function _closeWindows(winidx) {
+                if (winidx < numWindows) {
+                    overwolf.windows.obtainDeclaredWindow("AppWindow"+winidx, function(result) {
+                        if (result.status == "success") {
+                            overwolf.windows.close(result.window.id, function(result1) {
+                                return _closeWindows(winidx + 1);
+                            });
+                        }
+                    });
+                }                
+                else {
+                    _refreshListings();
+                }
+            }
+            function _refreshListings() {
+/**/
                 if (localStorage.getItem(SRAname)) {
                     SRAstate                = JSON.parse(localStorage.getItem(SRAname));
                     
@@ -404,16 +444,17 @@
                     document.getElementById("SRAconfigurationForm").appendChild(datalist);
                     updateButtons();
                 }
-                
+/**                
                 //close any windows open with my names.
                 for (var winidx=0; winidx < numWindows; winidx++) {
                     overwolf.windows.obtainDeclaredWindow("AppWindow"+winidx, function(result) {
                         if (result.status == "success") {
-                            overwolf.windows.minimize(result.window.id);
+                            overwolf.windows.close(result.window.id);
                         }
                     });
                 }
-                windowIds = [];
+/**/
+                windowIds = [];  //make all windows available
                 
                 //update the URLs on the links
                 document.getElementById("settings").href = SRAstate.SRAurl + "/SIMRacingApps/settings.html";
@@ -625,7 +666,16 @@
                         listingsTable.appendChild(listingsBody);
                     }
                     delay = 1000;
-                };
+                    //now close any windows not used
+                    for(var winidx=windowIds.length; winidx < numWindows; winidx++) {
+                        overwolf.windows.obtainDeclaredWindow("AppWindow"+winidx, function(result) {
+                            if (result.status == "success") {
+                                overwolf.windows.close(result.window.id);
+                            }
+                        });
+                    }                
+                }; //menuItemsRequest.onload
+                
                 menuItemsRequest.open("GET",SRAstate.SRAurl+"/SIMRacingApps/listings");
                 menuItemsRequest.send();
                 
@@ -727,7 +777,7 @@
                 });
                 overwolf.games.onGameInfoUpdated.addListener( function(e) {
                     console.log("onGameInfoUpdated() = " + JSON.stringify(e));
-                    if (e.gameInfo.title == 'iRacing' && e.gameInfo.isInFocus && e.focusChanged) {
+                    if (e.gameInfo.title == 'iRacing' && e.gameInfo.isInFocus) {
                         for (var winidx=0; winidx < numWindows && winidx < windowIds.length; winidx++) {
                             //is this window used, refresh it
                             if (windowIds[winidx]) {
