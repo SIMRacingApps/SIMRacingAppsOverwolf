@@ -4,6 +4,11 @@ It uses the SIMRacingAppsServer, so it must be running as well.
 
 Looking for the newest version, click [here](https://github.com/SIMRacingApps/SIMRacingAppsOverwolf/releases/latest).
 
+WARNING: THERE IS AN OVERWOLF BUG THAT CAUSES IT TO TAKE OVER YOUR USB INPUT DEVICES
+         WHENEVER YOU CLICK ON AN APP. THIS CAN CAUSE IT TO SHIFT DOWN, LOOSE FORCE FEEDBACK,
+         AND OTHER DISASTROUS THINGS. SO, DO NOT CLICK ON AN APP WHILE IN THE CAR.
+         I have posted the issue to the forums. You can follow it [here](http://forums.overwolf.com/index.php?/topic/7106-clicking-on-app-overwolf-takes-over-usb-input-devices)
+
 The main feature Overwolf has over [Electron-Apps](https://github.com/SIMRacingApps/SIMRacingAppsElectron), 
 is the ability to run SIMRacingApps while the SIM in full screen mode.
 It also supports transparent backgrounds, so round Apps look better.
