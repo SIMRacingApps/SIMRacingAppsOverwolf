@@ -7,6 +7,7 @@ Looking for the newest version, click [here](https://github.com/SIMRacingApps/SI
 WARNING: THERE IS AN OVERWOLF BUG THAT CAUSES IT TO TAKE OVER YOUR USB INPUT DEVICES
          WHENEVER YOU CLICK ON AN APP. THIS CAN CAUSE IT TO SHIFT DOWN, LOOSE FORCE FEEDBACK,
          AND OTHER DISASTROUS THINGS. SO, DO NOT CLICK ON AN APP WHILE IN THE CAR.
+         If you do, go into the garage and come back out and it will reset your devices.
          I have posted the issue to the forums. You can follow it [here](http://forums.overwolf.com/index.php?/topic/7106-clicking-on-app-overwolf-takes-over-usb-input-devices)
 
 The main feature Overwolf has over [Electron-Apps](https://github.com/SIMRacingApps/SIMRacingAppsElectron), 
