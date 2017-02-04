@@ -27,6 +27,7 @@ body {
     width:    100%; 
     z-index:  99    
 }
+
 .closer {
     display:  none;
     z-index:  100
@@ -47,9 +48,31 @@ body {
     z-index:  100
 }
 
+#resize {
+    position: absolute; 
+    right:    0;  
+    bottom:   0;    
+    height:   15px; 
+    width:    15px; 
+    z-index:  99    
+}
+
 .handle {
     background-color: rgba(0,0,0,.01); /*If it is totally transparent, it will not get any mouse events*/
+    color: transparent;
 }
 .handleHover {
     background-color: rgba(0,0,255,.5);
+    color: black;
+    cursor: move;
+}
+
+.move {
+    background-color: rgba(0,0,0,.01); /*If it is totally transparent, it will not get any mouse events*/
+    color: transparent;
+}
+.moveHover {
+    background-color: rgba(0,0,255,.5);
+    color: black;
+    cursor: nwse-resize;
 }

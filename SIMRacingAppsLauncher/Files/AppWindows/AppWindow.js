@@ -128,13 +128,13 @@ function dragMove() {
     });
 };
 
-//function dragResize() {
-//    overwolf.windows.getCurrentWindow( function(result) {
-//        if (result.status=="success"){
-//            overwolf.windows.dragResize(result.window.id,overwolf.windows.enums.WindowDragEdge.BottomRight);
-//        }
-//    });
-//};
+function dragResize() {
+    overwolf.windows.getCurrentWindow( function(result) {
+        if (result.status=="success"){
+            overwolf.windows.dragResize(result.window.id,overwolf.windows.enums.WindowDragEdge.BottomRight);
+        }
+    });
+};
 
 //The following events simulate a :hover CSS property. 
 //I found that :hover would not go away if the mouse moves out the top of the div.
@@ -143,6 +143,7 @@ var SRAtimer = null;
 var SRAonMouseOver = function() {
   document.getElementById("bar").className = "handleHover";
   document.getElementById("closer").className = "closerHover";
+  document.getElementById("resize").className = "moveHover";
   if (SRAtimer) {
       SRAonMouseOut();
   }
@@ -150,12 +151,14 @@ var SRAonMouseOver = function() {
   SRAtimer = setTimeout(function() {
       document.getElementById("bar").className = "handle";
       document.getElementById("closer").className = "closer";
+      document.getElementById("resize").className = "move";
   },3000);
 }
 
 var SRAonMouseOut = function() {
   document.getElementById("bar").className = "handle";
   document.getElementById("closer").className = "closer";
+  document.getElementById("resize").className = "move";
   if (SRAtimer) {
       clearTimeout(SRAtimer);
       SRAtimer = null;
@@ -194,5 +197,7 @@ window.onload = function() {
     document.getElementById("bar").onmouseout  = SRAonMouseOut;
     document.getElementById("closer").onmousedown = SRAcloser;
     document.getElementById("closer").onselectstart = SRAreturnFalse;
+    document.getElementById("resize").onmouseover = SRAonMouseOver;
+    document.getElementById("resize").onmouseout  = SRAonMouseOut;
 };
 
