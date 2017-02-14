@@ -73,7 +73,9 @@ Send me feedback and I'll document your experience here as well.
 1. Successful Setups
   1. Windows 10 with 4 monitors using an ASUS NVIDIA GTX970.
   2. Windows 10 ASUS Laptop Internal screen with Intel HD 4400 Graphics.
-
+  3. i7 2600k, gtx780ti, Win10, triplescreen, Firefox
+  4. i7 6700k, gtx1070, Win10 Pro, 4 monitors(triplescr + 1x 19" lcd), Firefox
+  
 2. Unsuccessful Setups
   1. On Windows 7, with an AMD R9 200 Series video card and 4 monitors.
      Using only 3 of the monitors for the SIM, it only worked on the left most monitor. 
