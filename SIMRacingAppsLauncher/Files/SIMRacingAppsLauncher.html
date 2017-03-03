@@ -459,226 +459,242 @@
                 //update the URLs on the links
                 document.getElementById("settings").href = SRAstate.SRAurl + "/SIMRacingApps/settings.html";
                 //get the listings
-                var menuItemsRequest = new XMLHttpRequest();
-                menuItemsRequest.onload = function(e) {
-                    var items = JSON.parse(menuItemsRequest.responseText);
-                    serverVersion = items.version;
-                    var version = serverVersion.major+'.'+serverVersion.minor+'_'+serverVersion.build;
-                    console.log("Server Version: " + version);
-                    document.title = SRAname + ' ' + version + ' (Overwolf)';
-                    document.getElementById("version").innerHTML = 'Server Version: ' 
-                                                                 + serverVersion.major 
-                                                                 + '.' + serverVersion.minor 
-                                                                 + "_" + serverVersion.build;
-                    //document.getElementById("userPath").innerHTML = serverVersion.userpath;
-                    document.getElementById("copyright").href     = SRAstate.SRAurl + serverVersion.copyrightUrl;
-                    document.getElementById("license").href       = SRAstate.SRAurl + serverVersion.licenseUrl;
-                    document.getElementById("notice").href        = SRAstate.SRAurl + serverVersion.noticeUrl;
-                    document.getElementById("releasenotes").href  = SRAstate.SRAurl + serverVersion.releasenotes;
-                    overwolf.extensions.current.getManifest(function(m) {
-                        console.log("Overwolf SIMRacingAppsLauncher Version: " + m.meta.version);
-                        document.getElementById("overwolf_version").innerHTML = "Overwolf SIMRacingAppsLauncher Version: " + m.meta.version;    
-                        var ga = new XMLHttpRequest();
-                        ga.onload = function(e) {
-                            var s=e;
-                        }
-                        
-                        var i18n = "en";
-                        //this method confirmed with IE
-                        if (window.navigator.userLanguage)
-                            i18n = window.navigator.userLanguage.toLowerCase().split(/[-_]/).join('-');
-                        else
-                        if (window.navigator.language)
-                            //this method confirmed with FireFox, Chrome, Safari iOS8
-                            i18n = window.navigator.language.toLowerCase().split(/[-_]/).join('-');
-                        
-                        var gaurl = 'http://www.google-analytics.com/collect';
-                        var gadata  = 'v=1';
-                            gadata += '&t=pageview';
-                            gadata += '&tid=UA-72478308-1';
-                            gadata += '&cid='+encodeURI(guid);
-                            //gadata += '&cid='+Date.now()+'.'+Date.now();
-                            gadata += '&dl=http%3A%2F%2Flocalhost%2Foverwolf%2Fmenu';
-                            gadata += '&dh=localhost';
-                            gadata += '&dp=%2Foverwolf%2Fmenu';
-                            gadata += '&av='+encodeURI(version);
-                            gadata += '&dt='+encodeURI(document.title);
-                            gadata += '&an=SIMRacingApps';
-                            gadata += '&ul='+encodeURI(i18n);
-                            gadata += '&ua='+encodeURI('Overwolf '+ m.meta.version + ' Windows');
-                            gadata += '&z=' + Date.now(); 
-                            
-                        console.log(gaurl);
-                        console.log(gadata);
-                        ga.open("POST",gaurl+'?'+gadata);
-                        ga.send();
-                    });
-                    checkForUpdate();
-/*                    
-                    <table width="100%" data-ng-repeat="header in headers">
-	                    <colgroup>
-	                        <col style="width: 200px"  />
-	                        <col style="width: 100%"  />
-	                    </colgroup>
-	                    <thead data-ng-show="listings[header].length > 0">
-	                        <tr>
-	                            <td class="header" colspan="2">{{header}}</td>
-	                        </tr>
-	                    </thead>
-	                    <tbody>
-	                        <tr class="item" data-ng-repeat="item in listings[header]">
-	                            <td class="icon"><a data-ng-click="launch(item.url,item.width,item.height)" target="_blank"><img class="icon" data-ng-src="{{item.icon}}"></a></td>
-	                            <td><a data-ng-click="launch(item.doc,1000,700)" target="_blank">
-	                                   <div class="itemtext">{{item.name}}<br /></div>
-	                                   <div class="itemdesc">{{item.description}}</div>
-	                                </a>
-	                            </td>
-	                        </tr>
-	                    </tbody>
-                    </table>
-*/
-                    delay = 1000;
-                    var listingsTable = document.getElementById("listingsTable");
-                    
-                    var listingsBody = document.getElementById("listingsBody");
-                    listingsBody.parentElement.removeChild(listingsBody);
+                overwolf.settings.getCurrentOverwolfLanguage(function(result) {
+                    var lang = result.language.toLowerCase();
+	                var menuItemsRequest = new XMLHttpRequest();
+	                menuItemsRequest.onload = function(e) {
+	                    var items = JSON.parse(menuItemsRequest.responseText);
+	                    serverVersion = items.version;
+	                    serverVersion.translations = serverVersion.translations || {};
+	                    var version = serverVersion.major+'.'+serverVersion.minor+'_'+serverVersion.build;
+	                    console.log("Server Version: " + version);
+	                    document.title = SRAname + ' ' + version + ' (Overwolf) ['+lang+']';
+	                    document.getElementById("version").innerHTML = (serverVersion.translations.SERVERVERSION || 'Server Version')+': ' 
+	                                                                 + serverVersion.major 
+	                                                                 + '.' + serverVersion.minor 
+	                                                                 + "_" + serverVersion.build;
+	                    //document.getElementById("userPath").innerHTML = serverVersion.userpath;
+	                    document.getElementById("copyright").href     = SRAstate.SRAurl + serverVersion.copyrightUrl;
+	                    document.getElementById("copyright").innerHTML= serverVersion.translations.COPYRIGHT || 'Copyright';
+	                    document.getElementById("license").href       = SRAstate.SRAurl + serverVersion.licenseUrl;
+	                    document.getElementById("license").innerHTML  = serverVersion.translations.LICENSE || 'License';
+	                    document.getElementById("notice").href        = SRAstate.SRAurl + serverVersion.noticeUrl;
+	                    document.getElementById("notice").innerHTML   = serverVersion.translations.NOTICE || 'Notice';
+	                    document.getElementById("releasenotes").href  = SRAstate.SRAurl + serverVersion.releasenotes;
+	                    document.getElementById("releasenotes").innerHTML=serverVersion.translations.RELEASENOTES || 'Release Notes';
 
-                    listingsBody = document.createElement("tbody");
-                    listingsBody.setAttribute('id','listingsBody');
-                    
-                    for (var headeridx in items.headers) {
-                        var header = items.headers[headeridx];
-                        if (items[header].length > 0) {
-                            var tr_header = document.createElement('tr');
-                            
-                            var td_header = document.createElement('td');
-                            td_header.setAttribute('class','header');
-                            td_header.setAttribute('colspan','3');
-                            td_header.innerHTML = header;
-                            tr_header.appendChild(td_header);
-                            
-                            listingsBody.appendChild(tr_header);
-                            
-                            for (var itemsidx in items[header]) {
-                                var item = items[header][itemsidx];
-
-                                var args         = item.args.split(";");
-                                var descriptions = item.description.split(";");
-                                var names        = item.name.split(";");
-                                var icons        = item.icon.split(";");
-                                for (var i=0; i < args.length;i++) {
-	                                var name = (i < names.length ? names[i] : names[0]);
-
-	                                var transparent   = false;
-	                                var loadonstartup = false;
-	                                if (localStorage.getItem(name+'-'+SRAstate.SRAconfiguration)) {
-	                                    var state = JSON.parse(localStorage.getItem(name+'-'+SRAstate.SRAconfiguration));
-	                                    if (state) {
-	                                        transparent   = state.transparent   == 'undefined' ? transparent   : state.transparent;
-	                                        loadonstartup = state.loadonstartup == 'undefined' ? loadonstartup : state.loadonstartup;
-	                                        
-	                                        if (loadonstartup) {
-	                                            launch(name,SRAstate.SRAurl+'/SIMRacingApps/'+item.url+args[i],item.width,item.height);
-	                                            delay += 200;
-	                                        }
-	                                    }
+	                    //now translate the buttons
+	                    document.getElementById("SRAconfigurationForm").innerHTML = (serverVersion.translations.CONFIGURATION || 'Configuration')+": <br />" + document.getElementById("SRAconfigurationForm").innerHTML;
+	                    document.getElementById("save").value         = serverVersion.translations.CREATE || 'Create';
+	                    document.getElementById("delete").value       = serverVersion.translations.DELETE || 'Delete';
+	                    document.getElementById("hide").value         = serverVersion.translations.HIDEALL || 'Hide All'; 
+	                    document.getElementById("show").value         = serverVersion.translations.SHOWALL || 'Show All';
+	                    
+	                    overwolf.extensions.current.getManifest(function(m) {
+	                        console.log("Overwolf SIMRacingAppsLauncher Version: " + m.meta.version);
+	                        document.getElementById("overwolf_version").innerHTML = "Overwolf SIMRacingAppsLauncher "+(serverVersion.translations.VERSION || 'Version')+": " + m.meta.version;    
+	                        var ga = new XMLHttpRequest();
+	                        ga.onload = function(e) {
+	                            var s=e;
+	                        }
+	                        
+	                        var i18n = "en";
+	                        //this method confirmed with IE
+	                        if (window.navigator.userLanguage)
+	                            i18n = window.navigator.userLanguage.toLowerCase().split(/[-_]/).join('-');
+	                        else
+	                        if (window.navigator.language)
+	                            //this method confirmed with FireFox, Chrome, Safari iOS8
+	                            i18n = window.navigator.language.toLowerCase().split(/[-_]/).join('-');
+	                        
+	                        var gaurl = 'http://www.google-analytics.com/collect';
+	                        var gadata  = 'v=1';
+	                            gadata += '&t=pageview';
+	                            gadata += '&tid=UA-72478308-1';
+	                            gadata += '&cid='+encodeURI(guid);
+	                            //gadata += '&cid='+Date.now()+'.'+Date.now();
+	                            gadata += '&dl=http%3A%2F%2Flocalhost%2Foverwolf%2Fmenu';
+	                            gadata += '&dh=localhost';
+	                            gadata += '&dp=%2Foverwolf%2Fmenu';
+	                            gadata += '&av='+encodeURI(version);
+	                            gadata += '&dt='+encodeURI(document.title);
+	                            gadata += '&an=SIMRacingApps';
+	                            gadata += '&ul='+encodeURI(i18n);
+	                            gadata += '&ua='+encodeURI('Overwolf '+ m.meta.version + ' Windows');
+	                            gadata += '&z=' + Date.now(); 
+	                            
+	                        console.log(gaurl);
+	                        console.log(gadata);
+	                        ga.open("POST",gaurl+'?'+gadata);
+	                        ga.send();
+	                    });
+	                    checkForUpdate();
+	/*                    
+	                    <table width="100%" data-ng-repeat="header in headers">
+		                    <colgroup>
+		                        <col style="width: 200px"  />
+		                        <col style="width: 100%"  />
+		                    </colgroup>
+		                    <thead data-ng-show="listings[header].length > 0">
+		                        <tr>
+		                            <td class="header" colspan="2">{{header}}</td>
+		                        </tr>
+		                    </thead>
+		                    <tbody>
+		                        <tr class="item" data-ng-repeat="item in listings[header]">
+		                            <td class="icon"><a data-ng-click="launch(item.url,item.width,item.height)" target="_blank"><img class="icon" data-ng-src="{{item.icon}}"></a></td>
+		                            <td><a data-ng-click="launch(item.doc,1000,700)" target="_blank">
+		                                   <div class="itemtext">{{item.name}}<br /></div>
+		                                   <div class="itemdesc">{{item.description}}</div>
+		                                </a>
+		                            </td>
+		                        </tr>
+		                    </tbody>
+	                    </table>
+	*/
+	                    delay = 1000;
+	                    var listingsTable = document.getElementById("listingsTable");
+	                    
+	                    var listingsBody = document.getElementById("listingsBody");
+	                    listingsBody.parentElement.removeChild(listingsBody);
+	
+	                    listingsBody = document.createElement("tbody");
+	                    listingsBody.setAttribute('id','listingsBody');
+	                    
+	                    for (var headeridx in items.headers) {
+	                        var header = items.headers[headeridx];
+	                        if (items[header].length > 0) {
+	                            var tr_header = document.createElement('tr');
+	                            
+	                            var td_header = document.createElement('td');
+	                            td_header.setAttribute('class','header');
+	                            td_header.setAttribute('colspan','3');
+	                            td_header.innerHTML = serverVersion.translations[header] || header;
+	                            tr_header.appendChild(td_header);
+	                            
+	                            listingsBody.appendChild(tr_header);
+	                            
+	                            for (var itemsidx in items[header]) {
+	                                var item = items[header][itemsidx];
+	
+	                                var args         = item.args.split(";");
+	                                var descriptions = item.description.split(";");
+	                                var names        = item.name.split(";");
+	                                var icons        = item.icon.split(";");
+	                                for (var i=0; i < args.length;i++) {
+		                                var name = (i < names.length ? names[i] : names[0]);
+	
+		                                var transparent   = false;
+		                                var loadonstartup = false;
+		                                if (localStorage.getItem(name+'-'+SRAstate.SRAconfiguration)) {
+		                                    var state = JSON.parse(localStorage.getItem(name+'-'+SRAstate.SRAconfiguration));
+		                                    if (state) {
+		                                        transparent   = state.transparent   == 'undefined' ? transparent   : state.transparent;
+		                                        loadonstartup = state.loadonstartup == 'undefined' ? loadonstartup : state.loadonstartup;
+		                                        
+		                                        if (loadonstartup) {
+		                                            launch(name,SRAstate.SRAurl+'/SIMRacingApps/'+item.url+args[i],item.width,item.height);
+		                                            delay += 200;
+		                                        }
+		                                    }
+		                                }
+		                                
+		                                var tr_item = document.createElement('tr');
+	                                    listingsBody.appendChild(tr_item);
+		                                tr_item.setAttribute('class','item');
+		                                
+		                                var td_form = document.createElement('td');
+		                                tr_item.appendChild(td_form);
+		                                
+		                                var form_options = document.createElement('form');
+		                                td_form.appendChild(form_options);
+		                                form_options.setAttribute('class','options_form');
+		                                form_options.setAttribute('data-name',name);
+		                                form_options.setAttribute('id','options-' + name);
+		                                
+		                                var input_transparent = document.createElement('input');
+		                                form_options.appendChild(input_transparent);
+		                                input_transparent.setAttribute('type','checkbox');
+		                                input_transparent.setAttribute('name','transparent');
+		                                input_transparent.setAttribute('value','transparent');
+		                                input_transparent.setAttribute('id',name + '-transparent');
+		                                input_transparent.checked = transparent;
+	                                    input_transparent.addEventListener('click',saveOptions);
+		                                
+		                                var label_transparent = document.createElement('label');
+		                                form_options.appendChild(label_transparent);
+		                                label_transparent.setAttribute('for',name + '-transparent');
+		                                label_transparent.setAttribute('class','options_label');
+		                                label_transparent.innerHTML = serverVersion.translations.TRANSPARENT || "Transparent";
+		                                
+		                                form_options.appendChild(document.createElement('br'));
+	
+	                                    var input_loadonstartup = document.createElement('input');
+	                                    form_options.appendChild(input_loadonstartup);
+	                                    input_loadonstartup.setAttribute('type','checkbox');
+	                                    input_loadonstartup.setAttribute('name','loadonstartup');
+	                                    input_loadonstartup.setAttribute('value','loadonstartup');
+	                                    input_loadonstartup.setAttribute('id',name + '-loadonstartup');
+	                                    input_loadonstartup.checked = loadonstartup;
+	                                    input_loadonstartup.addEventListener('click',saveOptions);
+	                                    
+	                                    var label_loadonstartup = document.createElement('label');
+	                                    form_options.appendChild(label_loadonstartup);
+	                                    label_loadonstartup.setAttribute('for',name + '-loadonstartup');
+	                                    label_loadonstartup.setAttribute('class','options_label');
+	                                    label_loadonstartup.innerHTML = serverVersion.translations.LOADONSTARTUP || "LoadOnStartup";
+		                                
+		                                var td_icon = document.createElement('td');
+	                                    tr_item.appendChild(td_icon);
+		                                td_icon.setAttribute('class','icon');
+		                                
+		                                var img_icon = document.createElement('img');
+	                                    td_icon.appendChild(img_icon);
+		                                img_icon.setAttribute('class','icon');
+		                                img_icon.setAttribute('src',SRAstate.SRAurl + '/SIMRacingApps/' + (i < icons.length ? icons[i] : icons[0]));
+		                                if (header.toLowerCase() != "documentation") {
+		                                    var f = new Function('launch("'+name+'","'+SRAstate.SRAurl+'/SIMRacingApps/'+item.url+args[i]+'",'+item.width+','+item.height+');');
+		                                    img_icon.addEventListener('click',f);
+		                                }
+		                                
+		                                var td_text = document.createElement('td');
+	                                    tr_item.appendChild(td_text);
+		                                
+		                                var a_text  = document.createElement('a');
+	                                    td_text.appendChild(a_text);
+		                                a_text.setAttribute('target','_blank');
+		                                a_text.setAttribute('href',SRAstate.SRAurl + '/SIMRacingApps/' + item.doc);
+		                                
+		                                var div_text= document.createElement('div');
+	                                    a_text.appendChild(div_text);
+		                                div_text.setAttribute('class','itemtext');
+		                                div_text.innerHTML = name + '<br />';
+		                                
+		                                var div_desc= document.createElement('div');
+	                                    a_text.appendChild(div_desc);
+		                                div_desc.setAttribute('class','itemdesc');
+		                                div_desc.innerHTML = (i < descriptions.length ? descriptions[i] : descriptions[0]);
+		                                
 	                                }
-	                                
-	                                var tr_item = document.createElement('tr');
-                                    listingsBody.appendChild(tr_item);
-	                                tr_item.setAttribute('class','item');
-	                                
-	                                var td_form = document.createElement('td');
-	                                tr_item.appendChild(td_form);
-	                                
-	                                var form_options = document.createElement('form');
-	                                td_form.appendChild(form_options);
-	                                form_options.setAttribute('class','options_form');
-	                                form_options.setAttribute('data-name',name);
-	                                form_options.setAttribute('id','options-' + name);
-	                                
-	                                var input_transparent = document.createElement('input');
-	                                form_options.appendChild(input_transparent);
-	                                input_transparent.setAttribute('type','checkbox');
-	                                input_transparent.setAttribute('name','transparent');
-	                                input_transparent.setAttribute('value','transparent');
-	                                input_transparent.setAttribute('id',name + '-transparent');
-	                                input_transparent.checked = transparent;
-                                    input_transparent.addEventListener('click',saveOptions);
-	                                
-	                                var label_transparent = document.createElement('label');
-	                                form_options.appendChild(label_transparent);
-	                                label_transparent.setAttribute('for',name + '-transparent');
-	                                label_transparent.setAttribute('class','options_label');
-	                                label_transparent.innerHTML = "Transparent";
-	                                
-	                                form_options.appendChild(document.createElement('br'));
-
-                                    var input_loadonstartup = document.createElement('input');
-                                    form_options.appendChild(input_loadonstartup);
-                                    input_loadonstartup.setAttribute('type','checkbox');
-                                    input_loadonstartup.setAttribute('name','loadonstartup');
-                                    input_loadonstartup.setAttribute('value','loadonstartup');
-                                    input_loadonstartup.setAttribute('id',name + '-loadonstartup');
-                                    input_loadonstartup.checked = loadonstartup;
-                                    input_loadonstartup.addEventListener('click',saveOptions);
-                                    
-                                    var label_loadonstartup = document.createElement('label');
-                                    form_options.appendChild(label_loadonstartup);
-                                    label_loadonstartup.setAttribute('for',name + '-loadonstartup');
-                                    label_loadonstartup.setAttribute('class','options_label');
-                                    label_loadonstartup.innerHTML = "LoadOnStartup";
-	                                
-	                                var td_icon = document.createElement('td');
-                                    tr_item.appendChild(td_icon);
-	                                td_icon.setAttribute('class','icon');
-	                                
-	                                var img_icon = document.createElement('img');
-                                    td_icon.appendChild(img_icon);
-	                                img_icon.setAttribute('class','icon');
-	                                img_icon.setAttribute('src',SRAstate.SRAurl + '/SIMRacingApps/' + (i < icons.length ? icons[i] : icons[0]));
-	                                if (header.toLowerCase() != "documentation") {
-	                                    var f = new Function('launch("'+name+'","'+SRAstate.SRAurl+'/SIMRacingApps/'+item.url+args[i]+'",'+item.width+','+item.height+');');
-	                                    img_icon.addEventListener('click',f);
-	                                }
-	                                
-	                                var td_text = document.createElement('td');
-                                    tr_item.appendChild(td_text);
-	                                
-	                                var a_text  = document.createElement('a');
-                                    td_text.appendChild(a_text);
-	                                a_text.setAttribute('target','_blank');
-	                                a_text.setAttribute('href',SRAstate.SRAurl + '/SIMRacingApps/' + item.doc);
-	                                
-	                                var div_text= document.createElement('div');
-                                    a_text.appendChild(div_text);
-	                                div_text.setAttribute('class','itemtext');
-	                                div_text.innerHTML = name + '<br />';
-	                                
-	                                var div_desc= document.createElement('div');
-                                    a_text.appendChild(div_desc);
-	                                div_desc.setAttribute('class','itemdesc');
-	                                div_desc.innerHTML = (i < descriptions.length ? descriptions[i] : descriptions[0]);
-	                                
-                                }
-                            }
-                        }
-                        listingsTable.appendChild(listingsBody);
-                    }
-                    delay = 1000;
-                    //now close any windows not used
-                    for(var winidx=windowIds.length; winidx < numWindows; winidx++) {
-                        overwolf.windows.obtainDeclaredWindow("AppWindow"+winidx, function(result) {
-                            if (result.status == "success") {
-                                overwolf.windows.close(result.window.id);
-                            }
-                        });
-                    }                
-                }; //menuItemsRequest.onload
-                
-                menuItemsRequest.open("GET",SRAstate.SRAurl+"/SIMRacingApps/listings");
-                menuItemsRequest.send();
-                
+	                            }
+	                        }
+	                        listingsTable.appendChild(listingsBody);
+	                    }
+	                    delay = 1000;
+	                    //now close any windows not used
+	                    for(var winidx=windowIds.length; winidx < numWindows; winidx++) {
+	                        overwolf.windows.obtainDeclaredWindow("AppWindow"+winidx, function(result) {
+	                            if (result.status == "success") {
+	                                overwolf.windows.close(result.window.id);
+	                            }
+	                        });
+	                    }                
+	                }; //menuItemsRequest.onload
+	                
+	                menuItemsRequest.open("GET",SRAstate.SRAurl+"/SIMRacingApps/listings?lang="+lang);
+	                menuItemsRequest.send();
+                });
+	                
                 //check for an update
                 var updateRequest = new XMLHttpRequest();
                 updateRequest.onload = function(e) {
@@ -822,7 +838,6 @@
         		    <tr>
         		    <td colspan="2">
         		        <form id="SRAconfigurationForm" class="SRAconfigurationForm">
-        		             Configuration:<br />
         		             <input oninput="javascript:updateButtons();" type="text" id="SRAconfiguration" name="configuration" value="default">
         		             <input onclick="javascript:saveConfiguration();" type="button" disabled="true" value="Create" name="save" id="save" />
                              <input onclick="javascript:deleteConfiguration();" type="button" disabled="true" value="Delete" name="delete" id="delete" />
