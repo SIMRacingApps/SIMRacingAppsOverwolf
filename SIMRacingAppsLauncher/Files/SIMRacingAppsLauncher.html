@@ -501,14 +501,14 @@
 	                            var s=e;
 	                        }
 	                        
-	                        var i18n = "en";
+	                        var i18n = lang;
 	                        //this method confirmed with IE
-	                        if (window.navigator.userLanguage)
-	                            i18n = window.navigator.userLanguage.toLowerCase().split(/[-_]/).join('-');
-	                        else
-	                        if (window.navigator.language)
-	                            //this method confirmed with FireFox, Chrome, Safari iOS8
-	                            i18n = window.navigator.language.toLowerCase().split(/[-_]/).join('-');
+//	                        if (window.navigator.userLanguage)
+//	                            i18n = window.navigator.userLanguage.toLowerCase().split(/[-_]/).join('-');
+//	                        else
+//	                        if (window.navigator.language)
+//	                            //this method confirmed with FireFox, Chrome, Safari iOS8
+//	                            i18n = window.navigator.language.toLowerCase().split(/[-_]/).join('-');
 	                        
 	                        var gaurl = 'http://www.google-analytics.com/collect';
 	                        var gadata  = 'v=1';
