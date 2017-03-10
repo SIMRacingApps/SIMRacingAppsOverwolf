@@ -275,13 +275,16 @@
                 localStorage.setItem(windowName,JSON.stringify(windows[windowName]));                                           
             }
             
-            function launch(name,url,width,height) {
+            function launch(name,url,width,height,lang) {
                 var useTop    = 0;
                 var useLeft   = 0;
                 var useWidth  = (width  || 800) * 1;
                 var useHeight = (height || 480) * 1;
                 var useTransparent = false;
                 var args = ""; //TODO: get args to this process from location.search
+
+                if (lang && lang.length > 0)
+                    args += '&lang='+lang;
                 
 /**
                 //if the window is already open, close it
@@ -596,7 +599,7 @@
 		                                        loadonstartup = state.loadonstartup == 'undefined' ? loadonstartup : state.loadonstartup;
 		                                        
 		                                        if (loadonstartup) {
-		                                            launch(name,SRAstate.SRAurl+'/SIMRacingApps/'+item.url+args[i],item.width,item.height);
+		                                            launch(name,SRAstate.SRAurl+'/SIMRacingApps/'+item.url+args[i],item.width,item.height,lang);
 		                                            delay += 200;
 		                                        }
 		                                    }
@@ -656,7 +659,7 @@
 		                                img_icon.setAttribute('class','icon');
 		                                img_icon.setAttribute('src',SRAstate.SRAurl + '/SIMRacingApps/' + (i < icons.length ? icons[i] : icons[0]));
 		                                if (header.toLowerCase() != "documentation") {
-		                                    var f = new Function('launch("'+name+'","'+SRAstate.SRAurl+'/SIMRacingApps/'+item.url+args[i]+'",'+item.width+','+item.height+');');
+		                                    var f = new Function('launch("'+name+'","'+SRAstate.SRAurl+'/SIMRacingApps/'+item.url+args[i]+'",'+item.width+','+item.height+',"'+lang+'");');
 		                                    img_icon.addEventListener('click',f);
 		                                }
 		                                
