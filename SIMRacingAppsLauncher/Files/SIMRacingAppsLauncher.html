@@ -238,6 +238,15 @@
                     }
                 }
             }
+
+            function configurationChange(e) {
+                var theinput = document.getElementById("SRAconfiguration");
+                var thelist  = document.getElementById("configurations");
+                var idx = e.target.selectedIndex;
+                var content = thelist.options[idx].innerHTML;
+                theinput.value = content;
+                saveConfiguration();
+            }
             
             function updateButtons() {
                 var length = document.forms.length;
@@ -490,6 +499,17 @@
 	                    //now translate the buttons
 	                    if (!document.getElementById("SRAconfigurationForm").innerHTML.startsWith(serverVersion.translations.CONFIGURATION)) {
 	                        document.getElementById("SRAconfigurationForm").innerHTML = (serverVersion.translations.CONFIGURATION || 'Configuration')+": <br />" + document.getElementById("SRAconfigurationForm").innerHTML;
+
+	                        //for some reason updating the innerHTML of the form looses the listener
+	                        //so put it back.
+	                        var datalist = document.getElementById("configurations");
+	                        datalist.addEventListener('change',configurationChange,false);
+	                        var selectedIndex = 0;
+	                        for (var configuration in SRAstate.SRAconfigurations) {
+	                            if (SRAstate.SRAconfiguration == configuration)
+	                                datalist.selectedIndex = selectedIndex;
+	                            selectedIndex++;
+	                        }
 	                    }
 	                    document.getElementById("save").value         = serverVersion.translations.CREATE || 'Create';
 	                    document.getElementById("delete").value       = serverVersion.translations.DELETE || 'Delete';
